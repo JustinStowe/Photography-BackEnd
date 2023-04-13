@@ -2,15 +2,15 @@
  * Dependencies
  */
 
-require("dotenv").env;
+require("dotenv").config();
 
 const express = require("express");
 
 const app = express();
 
-const mongoose = require("mongoose");
-
 const logger = require("morgan");
+
+const cors = require("cors");
 
 /*
  *Database
@@ -22,6 +22,9 @@ require("./config/database");
  */
 const PORT = process.env.PORT || 3001;
 
+const corsOptions = {
+  origin: "*",
+};
 /*
  *Middleware
  */
@@ -35,10 +38,13 @@ app.use(
     extended: true,
   })
 );
+
+app.use(cors(corsOptions));
 app.use((req, res, next) => {
   res.locals.data = {};
   next();
 });
+app.use(require("./config/checkToken"));
 /*
  * Routes
  */
