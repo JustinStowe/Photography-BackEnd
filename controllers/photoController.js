@@ -29,6 +29,10 @@ const dataController = {
   },
   async createPhotos(req, res, next) {
     try {
+      console.log(
+        chalk.bold.green("Req @ createPhotos"),
+        chalk.blueBright(req)
+      );
       const user = await User.findById(req.user._id);
       const { titles, dates, images } = req.body;
       const photos = [];
