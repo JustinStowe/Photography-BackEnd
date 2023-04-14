@@ -2,17 +2,17 @@ const cloudinary = require("../utilities/cloudinary");
 const upload = require("../utilities/multer");
 const User = require("../models/user");
 const Photo = require("../models/photo");
-const path = require("path");
+const chalk = require("chalk");
 const dataController = {
   async AllPhotos(req, res, next) {
     try {
       const user = await User.findById(req.user._id).populate("photos");
-      console.log("user data @ allPhotos:", user);
+      console.log(chalk.blueBright("user data @ allPhotos:"), user);
       const foundPhotos = user.photos;
       res.locals.data.photos = foundPhotos;
       next();
     } catch (error) {
-      console.error(error);
+      console.error(chalk.bold.red(error));
       res.status(500).json({ error });
     }
   },
@@ -23,45 +23,44 @@ const dataController = {
       res.locals.data.photo = targetPhoto;
       next();
     } catch (error) {
-      console.error(error);
+      console.error(chalk.bold.red(error));
       res.status(500).json({ error });
     }
   },
-  async createPhoto(req, res, next) {
-    console.log("req.file:", req.file);
+  async createPhotos(req, res, next) {
     try {
-      upload.single("image");
-      const result = await cloudinary.uploader.upload(req.file.path);
-      let photo = new Photo({
-        title: req.body.title,
-        date: req.body.date,
-        image: result.secure_url,
-        cloudinary_id: result.public_id,
-        owner: req.user._id,
-      });
-      await photo.save();
-      await User.findOneAndUpdate(
-        { _id: req.user._id },
-        { $push: { photos: photo._id } }
-      );
+      const user = await User.findById(req.user._id);
+      const { titles, dates, images } = req.body;
+      const photos = [];
+
+      for (let i = 0; i < images.length; i++) {
+        const photo = new Photo({
+          title: titles[i],
+          date: dates[i],
+          image: images[i],
+          owner: req.user._id,
+        });
+        await photo.save();
+        user.photos.push(photo);
+      }
+
+      await User.findOneAndUpdate({ _id: req.user._id }, { $push: { photos } });
       next();
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error });
+      res.status(500).json({ error: "Photo creation failed!" });
     }
   },
+
   async editPhoto(req, res, next) {
     const { id } = req.params;
     try {
-      upload.single("image");
       let photo = await Photo.findById(id);
-      await cloudinary.uploader.destroy(photo.cloudinary_id);
-      const result = await cloudinary.uploader.upload(req.file.path);
+      await cloudinary.uploader.destroy(photo.image);
       const data = {
         title: req.body.name || photo.name,
         date: req.body.date || photo.date,
         image: req.body.image || photo.image,
-        cloudinary_id: result.public_id || photo.cloudinary_id,
       };
       photo = await Photo.findByIdAndUpdate(id, data, {
         new: true,
@@ -69,7 +68,7 @@ const dataController = {
       res.locals.data.photo = photo;
       next();
     } catch (error) {
-      console.error(error);
+      console.error(chalk.bold.red(error));
       res.status(500).json({ error });
     }
   },
@@ -77,12 +76,12 @@ const dataController = {
     const { id } = req.params;
     try {
       let photo = await Photo.findById(id);
-      await cloudinary.uploader.destroy(photo.cloudinary_id);
+      await cloudinary.uploader.destroy(photo.image);
       await photo.deleteOne({ id: photo._id });
       res.locals.data.photo = photo;
       next();
     } catch (error) {
-      console.error(error);
+      console.error(chalk.bold.red(error));
       res.status(500).json({ error });
     }
   },

@@ -10,25 +10,10 @@ router.get("/", dataController.AllPhotos, apiController.index);
 //Show
 router.get("/:id", dataController.onePhoto, apiController.show);
 //Create
-router.post(
-  "/",
-  ensureLoggedIn,
-  dataController.createPhoto,
-  apiController.show
-);
+router.post("/", dataController.createPhotos, apiController.show);
 //Update
-router.put(
-  "/:id",
-  ensureLoggedIn,
-  dataController.editPhoto,
-  apiController.show
-);
+router.put("/:id", dataController.editPhoto, apiController.show);
 //Delete
-router.delete(
-  "/:id",
-  ensureLoggedIn,
-  dataController.deletePhoto,
-  apiController.show
-);
+router.delete("/:id", dataController.deletePhoto, apiController.show);
 
 module.exports = router;

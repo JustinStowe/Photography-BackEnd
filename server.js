@@ -12,6 +12,7 @@ const logger = require("morgan");
 
 const cors = require("cors");
 
+const chalk = require("chalk");
 /*
  *Database
  */
