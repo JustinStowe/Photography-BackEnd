@@ -30,22 +30,25 @@ const dataController = {
   async createPhotos(req, res, next) {
     try {
       console.log(
-        chalk.bold.green("Req @ createPhotos"),
-        chalk.blueBright(req)
+        chalk.bold.green("Req.body @ createPhotos"),
+        chalk.blueBright(req.body)
       );
-      const user = await User.findById(req.user._id);
-      const { titles, dates, images } = req.body;
-      const photos = [];
 
-      for (let i = 0; i < images.length; i++) {
+      const photos = [];
+      if (!Array.isArray(req.body)) {
+        return res
+          .status(400)
+          .json({ error: "Invalid request body: images must be an array" });
+      }
+      for (let i = 0; i < req.body.length; i++) {
         const photo = new Photo({
-          title: titles[i],
-          date: dates[i],
-          image: images[i],
+          title: req.body[i].title,
+          date: req.body[i].date,
+          image: req.body[i].image,
           owner: req.user._id,
         });
         await photo.save();
-        user.photos.push(photo);
+        photos.push(photo._id);
       }
 
       await User.findOneAndUpdate({ _id: req.user._id }, { $push: { photos } });
