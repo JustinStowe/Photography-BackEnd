@@ -7,10 +7,10 @@ const dataController = {
   async AllPhotos(req, res, next) {
     try {
       const user = await User.findById(req.user._id).populate("photos");
-      console.log(chalk.blueBright("user data @ allPhotos:"), user);
+      // console.log(chalk.blueBright("user data @ allPhotos:"), user);
       const foundPhotos = user.photos;
       res.locals.data.photos = foundPhotos;
-      console.log("res.locals.data.photos:", res.locals.data.photos);
+      // console.log("res.locals.data.photos:", res.locals.data.photos);
       next();
     } catch (error) {
       console.error(chalk.bold.red(error));
@@ -65,11 +65,13 @@ const dataController = {
     const { id } = req.params;
     try {
       let photo = await Photo.findById(id);
-      await cloudinary.uploader.destroy(photo.image);
+
+      await cloudinary.uploader.destroy(photo.public_id);
       const data = {
         title: req.body.name || photo.name,
         date: req.body.date || photo.date,
         image: req.body.image || photo.image,
+        public_id: req.body.public_id || photo.public_id,
       };
       photo = await Photo.findByIdAndUpdate(id, data, {
         new: true,
@@ -85,7 +87,7 @@ const dataController = {
     const { id } = req.params;
     try {
       let photo = await Photo.findById(id);
-      await cloudinary.uploader.destroy(photo.image);
+      await cloudinary.uploader.destroy(photo.public_id);
       await photo.deleteOne({ id: photo._id });
       res.locals.data.photo = photo;
       next();
