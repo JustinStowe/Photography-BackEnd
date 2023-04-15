@@ -10,6 +10,7 @@ const dataController = {
       console.log(chalk.blueBright("user data @ allPhotos:"), user);
       const foundPhotos = user.photos;
       res.locals.data.photos = foundPhotos;
+      console.log("res.locals.data.photos:", res.locals.data.photos);
       next();
     } catch (error) {
       console.error(chalk.bold.red(error));
@@ -45,6 +46,7 @@ const dataController = {
           title: req.body[i].title,
           date: req.body[i].date,
           image: req.body[i].image,
+          public_id: req.body[i].public_id,
           owner: req.user._id,
         });
         await photo.save();
