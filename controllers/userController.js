@@ -35,6 +35,24 @@ const dataController = {
       res.status(400).json("Bad Cedentials");
     }
   },
+  async editUserData(req, res, next) {
+    try {
+      const user = await User.findOne({ email: req.body.email });
+      console.log("User in edit user data:", user);
+      const match = await bcrypt.compare(req.body.oldPassword, user.password);
+      if (!match) throw new Error("invalid");
+      const encryptedPassword = await brcrypt.hash(req.body.password, 6);
+      (user.name = req.body.name || user.name),
+        (user.email = req.body.name || user.email),
+        (user.password = encryptedPassword || user.password);
+
+      await user.save();
+
+      res.locals.data.user = user;
+      res.locals.data.token = createJWT(user);
+      next();
+    } catch (error) {}
+  },
 };
 
 const apiController = {

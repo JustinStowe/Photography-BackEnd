@@ -15,4 +15,7 @@ router.get("/checkToken", ensureLoggedIn, checkToken);
 //Post /users
 router.post("/", dataController.create, apiController.auth);
 
+//put /users
+router.put("/", dataController.editUserData, apiController.auth);
+
 module.exports = router;
