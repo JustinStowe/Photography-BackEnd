@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema(
     },
     projectId: [{ type: mongoose.Schema.Types.ObjectId, ref: "ProjectId" }],
     photos: [{ type: mongoose.Schema.Types.ObjectId, ref: "Photo" }],
+    isAdmin: { type: Boolean, default: false },
   },
   {
     timestamps: true,
