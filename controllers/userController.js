@@ -24,9 +24,15 @@ const dataController = {
     try {
       const user = await User.findOne({ email: req.body.email });
       console.log("User in controller", user);
-      if (!user) throw new Error("User with that email already exists");
+      if (!user)
+        throw new Error(
+          "User with that email/password combination doesn't exists"
+        );
       const match = await bcrypt.compare(req.body.password, user.password);
-      if (!match) throw new Error("invalid ");
+      if (!match)
+        throw new Error(
+          "User with that email/password combination doesn't exists"
+        );
       res.locals.data.user = user;
       res.locals.data.token = createJWT(user);
       next();
